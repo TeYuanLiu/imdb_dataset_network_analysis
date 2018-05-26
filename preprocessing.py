@@ -20,11 +20,15 @@ def readtxt(fname):
     with open(fname, encoding="ISO-8859-1") as fin:
         c = 0
         for line in fin:
+
             obj_list = re.split(r"\t+", line)
             strip_list = []
             for obj in obj_list:
                 strip_list.append(obj.strip("\n").strip())
             strip_list = list(filter(None, strip_list))
+            for obj in strip_list:
+                target = obj.split("(")[0]
+
             print(strip_list)
             c += 1
             if c > 3:
