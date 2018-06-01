@@ -18,7 +18,7 @@ def mergetxt(fnames):
             with open(fname, encoding="ISO-8859-1") as infile:
                 for line in infile:
                     outfile.write(line)
-def readtxt_write_edgelist(fname):
+def readtxt_write_edgelist(fname, cast_names):
     start = time.time()
     cast_movie_dict = {}
     movie_cast_dict = {}
@@ -33,7 +33,7 @@ def readtxt_write_edgelist(fname):
             cast_count += 1
             strip_list = []
             for obj in obj_list:
-                strip_list.append(obj.strip("\n").strip())
+                strip_list.append(obj.strip("\n").strip().replace(",", ""))
             strip_list = list(filter(None, strip_list))
             obj_count = 0
             cast_name = strip_list[0]
@@ -44,7 +44,7 @@ def readtxt_write_edgelist(fname):
                 if obj_count >= 2:
                     p1 = re.search(r"\((\d{4}|\?{4})[^()]*\)(.+)", obj)
                     if p1:
-                        obj = obj.replace(p1.group(2),'')
+                        obj = obj.replace(p1.group(2),"")
                         ## movie 2 cast dict update
                         if movie_cast_dict.get(obj) == None:
                             new_cast_list = []
@@ -68,6 +68,9 @@ def readtxt_write_edgelist(fname):
                         ## cast 2 movie dict update
                         cast_movie_dict[cast_name].append(obj)
     print("There are ",len(cast_movie_dict)," actors/actresses and ",len(movie_cast_dict)," unique movies...")
+    for cast_name in cast_names:
+        print("Actor/Actress: ",cast_name," and number of movies: ",len(cast_movie_dict[cast_name]))
+        
     ## create edge list for actor/actress network
     dic = {}
     edgelist_dict = {}
@@ -144,8 +147,9 @@ def readtxt_write_edgelist(fname):
 def main():
     # run the two below lines of code for creation of merged.txt
     file_names = ["actor_movies.txt", "actress_movies.txt"]
+    cast_names = ["O'Connor Frank (I)", "Harris Sam (II)", "Downes Robin Atkin", "Miller Harold (I)", "Blum Steve (IX)", "Flowers Bess", "Jeremy Ron", "Tatasciore Fred", "Phelps Lee (I)", "Lowenthal Yuri", "Cruise Tom", "Watson Emma (II)", "Clooney George", "Hanks Tom", "Johnson Dwayne (I)", "Depp Johnny", "Smith Will (I)", "Streep Meryl", "DiCaprio Leonardo", "Pitt Brad"] 
     mergetxt(file_names)
     print("hello" + " world...")
-    readtxt_write_edgelist("merged.txt")
+    readtxt_write_edgelist("merged.txt", cast_names)
 if __name__ == "__main__":
     main()
