@@ -19,6 +19,7 @@ def mergetxt(fnames):
                 for line in infile:
                     outfile.write(line)
 def readtxt_write_edgelist(fname):
+    start = time.time()
     cast_movie_dict = {}
     movie_cast_dict = {}
     line_count = 0
@@ -84,10 +85,10 @@ def readtxt_write_edgelist(fname):
                     else:
                         edgelist_dict[key] += 1.0/len(ml)
     #print(dict(list(edgelist_dict.items())[:]))
-    with open("cast_network_edgelist.txt", "w", encoding="ISO-8859-1") as outfile:
+    with open("cast_network_edgelist.csv", "w", encoding="utf-8") as outfile:
         for k, v in edgelist_dict.items():
             c1, c2 = k.split("\n")
-            line = " ".join([c1, c2, str(v)]) + "\n"
+            line = ",".join(["\""+c1+"\"", "\""+c2+"\"", str(v)]) + "\n"
             outfile.write(line)
     
     ## create edge list for movie network
@@ -107,7 +108,6 @@ def readtxt_write_edgelist(fname):
             else:
                 trim_cast_movie_dict[c].append(m)
                 
-    start = time.time()
     for m1, cl1 in trim_movie_cast_dict.items():
         for c in cl1:
             for m2 in trim_cast_movie_dict[c]:
@@ -125,13 +125,15 @@ def readtxt_write_edgelist(fname):
                     else:
                         print("*******error: ",edgelist_dict)
                         return
-    end = time.time()
-    print("runtime: " + str(end - start))
-    with open("movie_network_edgelist.txt", "w", encoding="ISO-8859-1") as outfile:
+    with open("movie_network_edgelist.csv", "w", encoding="utf-8") as outfile:
         for k, v in edgelist_dict.items():
             m1, m2 = k.split("\n")
-            line = " ".join([m1, m2, str(v/2)]) + "\n"
+            line = ",".join(["\""+m1+"\"", "\""+m2+"\"", str(v/2)]) + "\n"
             outfile.write(line)
+    
+    end = time.time()
+    print("runtime: " + str(end - start))
+
 ##############################
 # Main function
 ##############################
