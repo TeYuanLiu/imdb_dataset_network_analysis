@@ -67,28 +67,27 @@ def readtxt_write_edgelist(fname):
                             movie_cast_dict[obj].append(cast_name)
                         ## cast 2 movie dict update
                         cast_movie_dict[cast_name].append(obj)
-    print("There are ",cast_count," actors/actresses and ",len(movie_cast_dict)," unique movies...")
-    #print(dict(list(movie_cast_dict.items())[:]))
-    #print("/////////////////////////////")
-    #print(dict(list(cast_movie_dict.items())[:]))
-    #print("/////////////////////////////")
-    
+    print("There are ",len(cast_movie_dict)," actors/actresses and ",len(movie_cast_dict)," unique movies...")
     ## create edge list for actor/actress network
+    dic = {}
     edgelist_dict = {}
     for c1, ml in cast_movie_dict.items():
         for m in ml:
             for c2 in movie_cast_dict[m]:
                 if c1 != c2:
+                    dic[c1] = 1
+                    dic[c2] = 1
                     key = c1 + "\n" + c2
                     if edgelist_dict.get(key) == None:
                         edgelist_dict[key] = 1.0/len(ml)
                     else:
                         edgelist_dict[key] += 1.0/len(ml)
-    #print(dict(list(edgelist_dict.items())[:]))
-    with open("cast_network_edgelist.csv", "w", encoding="utf-8") as outfile:
+    print("There are ",len(dic)," nodes in the cast network...")
+    
+    with open("cast_network_edgelist.txt", "w", encoding="utf-8") as outfile:
         for k, v in edgelist_dict.items():
             c1, c2 = k.split("\n")
-            line = ",".join(["\""+c1+"\"", "\""+c2+"\"", str(v)]) + "\n"
+            line = ",".join([c1.replace(",", ""), c2.replace(",", ""), str(v)]) + "\n"
             outfile.write(line)
     
     ## create edge list for movie network
@@ -107,11 +106,14 @@ def readtxt_write_edgelist(fname):
                 trim_cast_movie_dict[c] = new_movie_list
             else:
                 trim_cast_movie_dict[c].append(m)
-                
+    print("There are ",len(trim_cast_movie_dict)," actors/actresses and ",len(trim_movie_cast_dict)," unique movies left after trimming...")
+    dic = {}
     for m1, cl1 in trim_movie_cast_dict.items():
         for c in cl1:
             for m2 in trim_cast_movie_dict[c]:
                 if m1 != m2:
+                    dic[m1] = 1
+                    dic[m2] = 1
                     cl2 = movie_cast_dict[m2]
                     cast_union_count = len(list(set(cl1) | set(cl2)))
                     key1 = m1 + "\n" + m2
@@ -125,10 +127,12 @@ def readtxt_write_edgelist(fname):
                     else:
                         print("*******error: ",edgelist_dict)
                         return
-    with open("movie_network_edgelist.csv", "w", encoding="utf-8") as outfile:
+    print("There are ",len(dic)," nodes in the movie network..." )
+    
+    with open("movie_network_edgelist.txt", "w", encoding="utf-8") as outfile:
         for k, v in edgelist_dict.items():
             m1, m2 = k.split("\n")
-            line = ",".join(["\""+m1+"\"", "\""+m2+"\"", str(v/2)]) + "\n"
+            line = ",".join([m1.replace(",", ""), m2.replace(",", ""), str(v/2)]) + "\n"
             outfile.write(line)
     
     end = time.time()
