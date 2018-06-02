@@ -11,7 +11,8 @@ g <- graph.data.frame(dt, directed=F)
 vcount(g)
 ecount(g)
 plot(degree.distribution(g),main="Degree distribution of the movie network",xlab="Degree",ylab="Frequency")
-c = fastgreedy.community(g)
-
 saveRDS(g, "graph.rds")
+
+
+c = fastgreedy.community(g)
 saveRDS(c, "community.rds")
