@@ -19,7 +19,16 @@ plot_dd = function(g){
     nonzero.position = which(probability != 0)
     probability = probability[nonzero.position]
     degree = degree[nonzero.position]
-    plot(probability ~ degree, xlab="Degree", ylab="Probability", col=1, main="Degree Distribution")
+    #plot(probability ~ degree, xlab="Degree", ylab="Probability", col=1, main="Degree Distribution")
+    reg = lm(log(probability) ~ log(degree))
+    cozf = coef(reg)
+    power.law.fit = function(x) exp(cozf[[1]] + cozf[[2]] * log(x))
+    alpha = -cozf[[2]]
+    R.square = summary(reg)$r.squared
+    print(paste("Alpha = ", round(alpha, 3)))
+    print(paste("R square = ", round(R.square, 3)))
+    plot(probability ~ degree, log="xy", xlab="Degree (log)", ylab="Probability (log)", col=1, main="Degree Distribution (log scale)")
+    curve(power.law.fit, col="red", add=T, n=length(d))
 }
 pairing = function(g, nl){
     for(i in 1:length(nl)){
