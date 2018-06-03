@@ -41,15 +41,13 @@ for i, line in enumerate(file_merge):
             movies[movie_name] += ","+character
         else:
             movies[movie_name] = character
-    #if i > 2000:
-       #break
 for key, value in movies.items():
     movie_list.writelines(key+','+value+'\n')
 file_merge.close()
 movie_list.close()
 
 movie_list = open("movie_list.txt", "r",encoding='ISO-8859-1')
-movie_clean = open("movie_clean.txt", "w+",encoding='ISO-8859-1')
+movie_clean = open("movie_utf-8.txt", "w+",encoding='utf-8')
 
 for i, line in enumerate(movie_list):
     newline = line.split(',')
@@ -66,31 +64,57 @@ movie_clean.close()
 movie_list.close()
 
 
-"""
-def intersection(lst1, lst2):
-    lst3 = [value for value in lst1 if value in lst2]
-    return lst3
+def edgelist(fname):
+    with open("movie_network_edgelist.txt", "w", encoding="utf-8") as outfile:
+        cast_movie_dict = {}
+        movie_cast_dict = {}
+        with open(fname, encoding="ISO-8859-1") as fin:
+            for line in fin:    
+                obj_list = line.split(',')
+                strip_list = []
+                for obj in obj_list:
+                    strip_list.append(obj.strip("\n").strip())
+                strip_list = list(filter(None, strip_list))
+                obj_count = 0
+                movie_name = strip_list[0]
+                new_cast_list = []
+                movie_cast_dict[movie_name] = new_cast_list
+                for obj in strip_list:
+                    obj_count += 1
+                    if obj_count >= 2:
+                        movie_cast_dict[movie_name].append(obj)
+                        if cast_movie_dict.get(obj) == None:
+                            new_movie_list = []
+                            new_movie_list.append(movie_name)
+                            cast_movie_dict[obj] = new_movie_list
+                        else:
+                            cast_movie_dict[obj].append(movie_name)
+            edgelist_dict = {}
+            for m1, cl in movie_cast_dict.items():
+                for c in cl:
+                    for m2 in cast_movie_dict[c]:
+                        if m1 is not m2:
+                            keylist = [m1, m2]
+                            keylist.sort()
+                            #print(keylist)
+                            key = keylist[0] + "," + keylist[1]
+                            if edgelist_dict.get(key) == None:
+                                edgelist_dict[key] = 1/len(list(set(m1).union(m2)))
+                            else:
+                                edgelist_dict[key] += 1/len(list(set(m1).union(m2)))
+            for k, v in edgelist_dict.items():
+                c1, c2 = k.split(",")
+                line = ",".join([c1, c2, str(v/2)]) + "\n"
+                outfile.write(line)
 
-movie_clean = open("movie_clean.txt", "r",encoding='ISO-8859-1')
-edge_list = open("edge_list.txt", "w+",encoding='ISO-8859-1')
-matrix = []
-for i, line in enumerate(movie_clean):
-    newline = line.split(',')
-    strip_list = []
-    for obj in newline:
-        strip_list.append(obj.strip("\n").strip())
-    strip_list = list(filter(None, strip_list))
-    matrix.append(strip_list)
-for i in range(len(matrix)-1):
-    print(i)
-    for j in range(i+1, len(matrix)):
-        intersect = len(intersection(matrix[i],matrix[j]))
-        union = len(matrix[i])+len(matrix[j])-2
-        if intersect > 0:
-            weight = intersect/union
-            edge_list.writelines(matrix[i][0]+','+matrix[j][0]+','+str(weight)+'\n')
-            #print(matrix[i][0], matrix[j][0], weight)
-print(len(matrix))
-movie_clean.close()
-edge_list.close()
-"""
+edgelist("movie_clean.txt")
+with open("movie_rating_utf8.txt", "w", encoding="utf-8") as outfile:
+    with open("movie_rating.txt", "r", encoding="ISO-8859-1") as fin:
+        for line in fin:
+            outfile.write(line)
+
+
+
+
+
+
