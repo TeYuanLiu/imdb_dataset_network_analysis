@@ -38,8 +38,8 @@ def readtxt_write_edgelist(fname, cast_names):
             strip_list = list(filter(None, strip_list))
             obj_count = 0
             cast_name = strip_list[0]
-            new_movie_list = []
-            cast_movie_dict[cast_name] = new_movie_list
+            new_movie_dict = {}
+            cast_movie_dict[cast_name] = new_movie_dict
             for obj in strip_list:
                 obj_count += 1
                 if obj_count >= 2:
@@ -48,35 +48,48 @@ def readtxt_write_edgelist(fname, cast_names):
                         obj = obj.replace(p1.group(2),"")
                         ## movie 2 cast dict update
                         if movie_cast_dict.get(obj) == None:
-                            new_cast_list = []
-                            new_cast_list.append(cast_name)
-                            movie_cast_dict[obj] = new_cast_list
+                            new_cast_dict = {}
+                            new_cast_dict[cast_name] = 1
+                            movie_cast_dict[obj] = new_cast_dict
                         else:
-                            movie_cast_dict[obj].append(cast_name)
+                            movie_cast_dict[obj][cast_name] = 1
                         ## cast 2 movie dict update
-                        cast_movie_dict[cast_name].append(obj)
+                        cast_movie_dict[cast_name][obj] = 1
                     else:
                         p2 = re.search(r"\((\d{4}|\?{4})[^()]*\)", obj)
                         if not p2:
                             obj = obj + " (????)"
                         # movie 2 cast dict update
                         if movie_cast_dict.get(obj) == None:
-                            new_cast_list = []
-                            new_cast_list.append(cast_name)
-                            movie_cast_dict[obj] = new_cast_list
+                            new_cast_dict = {}
+                            new_cast_dict[cast_name] = 1
+                            movie_cast_dict[obj] = new_cast_dict
                         else:
-                            movie_cast_dict[obj].append(cast_name)
+                            movie_cast_dict[obj][cast_name] = 1
                         ## cast 2 movie dict update
-                        cast_movie_dict[cast_name].append(obj)
-    print("There are ",len(cast_movie_dict)," actors/actresses and ",len(movie_cast_dict)," unique movies...")
-    for cast_name in cast_names:
-        print("Actor/Actress: ",cast_name," and number of movies: ",len(cast_movie_dict[cast_name]))
-    with open("movie2actor.txt", "w", encoding="utf-8") as outfile:
-        for k, v in movie_cast_dict.items():
-            outfile.write("%s,%s\n" %(k, v))    
+                        cast_movie_dict[cast_name][obj] = 1
+    new_cast_movie_dict = {}
+    new_movie_cast_dict = {}
+    ## reconstruct cast_movie_dict
+    for c, md in cast_movie_dict.items():
+        new_movie_list = []
+        for k, v in md.items():
+            new_movie_list.append(k)
+        new_cast_movie_dict[c] = new_movie_list
+    ## reconstruct movie_cast_dict
+    for m, cd in movie_cast_dict.items():
+        new_cast_list = []
+        for k, v in cd.items():
+            new_cast_list.append(k)
+        new_movie_cast_dict[m] = new_cast_list                    
 
-    with open("bipartite_edgelist.txt", "w", encoding="utf-8") as outfile:
-        for k, v in movie_cast_dict.items():
+
+    # with open("movie2actor.txt", "w", encoding="utf-8") as outfile:
+    #     for k, v in movie_cast_dict.items():
+    #         outfile.write("%s,%s\n" %(k, v))    
+
+    with open("bipartite_edgelist2.txt", "w", encoding="utf-8") as outfile:
+        for k, v in new_movie_cast_dict.items():
             if(k in movies):
                 for actor in v:
                     outfile.write("%s,%s,1\n" %(k, actor))
